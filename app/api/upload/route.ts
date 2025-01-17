@@ -45,7 +45,7 @@ const connectDB = async (): Promise<void> => {
         });
     }
 };
-
+//Test
 const parseText = (text: string): Partial<IResume> => {
     const nameMatch = text.match(/Name:\s*(.*)/);
     const emailMatch = text.match(/Email:\s*(.*)/);
