@@ -28,15 +28,15 @@ export default function Home() {
         method: "POST",
         body: formData,
       });
-      const data = await response.json();
+      const data = await response.text();
 
       if (response.ok) {
-        setMessage(data.message);
+        setMessage(data);
       } else {
-        setMessage(data.error);
+        setMessage(data);
       }
     } catch (err) {
-      setMessage("Error uploading file.");
+      setMessage((err as Error).message);
     }
   };
 
