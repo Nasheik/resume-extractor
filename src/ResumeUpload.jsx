@@ -15,7 +15,7 @@ const ResumeUpload = () => {
     };
 
     return (
-        <div className="min-h-screen w-full relative">
+        <div className="min-h-screen w-full bg-gray-100">
             {/* Pattern Background */}
             <div className="absolute inset-0" style={{
                 backgroundColor: '#ffffff',
