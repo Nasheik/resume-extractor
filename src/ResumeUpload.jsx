@@ -15,25 +15,27 @@ const ResumeUpload = () => {
     };
 
     return (
-        <div className="min-h-screen w-full bg-gray-100">
+        <div className="min-h-screen w-full">
             {/* Pattern Background */}
             <div className="absolute inset-0" style={{
                 backgroundColor: '#ffffff',
                 backgroundImage: `
-          radial-gradient(circle at 0% 50%, transparent 9px, #e0e0e0 10px, transparent 11px),
-          radial-gradient(circle at 100% 50%, transparent 9px, #e0e0e0 10px, transparent 11px),
+          radial-gradient(circle at 50% 0%, transparent 9px, #e0e0e0 10px, transparent 11px),
           linear-gradient(#ffffff 40px, transparent 0)
         `,
                 backgroundSize: '40px 40px',
-                opacity: '0.5'
+                opacity: '0.8'
             }} />
 
             {/* Main Content */}
-            <div className="relative z-10 w-full min-h-screen px-4 py-8">
-                {/* Title */}
+            <div className="max-w-2xl mx-auto bg-white rounded-lg shadow-md px-3 pb-1 pt-10 mb-4">
                 <h1 className="text-4xl font-bold text-center text-gray-800 mb-12">
                     Reform My Resume
                 </h1>
+            </div>
+            <div className="relative z-10 w-full min-h-screen px-4 py-8">
+                {/* Title */}
+
 
                 {/* Upload Section */}
                 <div className="max-w-2xl mx-auto bg-white rounded-lg shadow-md p-8">
