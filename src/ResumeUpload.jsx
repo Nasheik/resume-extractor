@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-const ResumeUpload = () => {
+const ResumeUpload = ({ navigate, file, setFile }) => {
     const [uploadedFile, setUploadedFile] = useState(null);
 
     const handleFileUpload = (event) => {
@@ -26,19 +26,18 @@ const ResumeUpload = () => {
                 backgroundSize: '40px 40px',
                 opacity: '0.8'
             }} />
-
             {/* Main Content */}
-            <div className="max-w-2xl mx-auto bg-white rounded-lg shadow-md px-3 pb-1 pt-10 mb-4">
-                <h1 className="text-4xl font-bold text-center text-gray-800 mb-12">
-                    Reform My Resume
-                </h1>
-            </div>
             <div className="relative z-10 w-full min-h-screen px-4 py-8">
+                <div className="max-w-2xl mx-auto bg-white rounded-lg shadow-md px-3 pb-1 pt-10 mb-4">
+                    <h1 className="text-4xl font-bold text-center text-gray-800 mb-12">
+                        Reform My Resume
+                    </h1>
+                </div>
                 {/* Title */}
 
 
                 {/* Upload Section */}
-                <div className="max-w-2xl mx-auto bg-white rounded-lg shadow-md p-8">
+                <div className="max-w-2xl mx-auto bg-white rounded-lg shadow-md p-8 place-items-center">
                     {/* Upload Button - Always Visible */}
                     <div className="text-center mb-6">
                         <label className="block">
@@ -57,30 +56,34 @@ const ResumeUpload = () => {
                         </p>
                     </div>
 
+
                     {/* Preview Section - Shows only when file is uploaded */}
-                    {uploadedFile && (
-                        <div className="bg-gray-50 rounded-lg p-4">
-                            <h2 className="text-xl font-semibold mb-4 text-center">Resume Preview</h2>
-                            <div className="aspect-[8.5/11] w-full bg-white rounded shadow-sm border border-gray-200">
-                                {uploadedFile.startsWith('data:application/pdf') ? (
-                                    <embed
-                                        src={uploadedFile}
-                                        type="application/pdf"
-                                        width="100%"
-                                        height="100%"
-                                        className="rounded"
-                                    />
-                                ) : (
-                                    <div className="flex items-center justify-center h-full text-gray-500">
-                                        Document Preview Available
-                                    </div>
-                                )}
-                            </div>
+                    {uploadedFile && (uploadedFile.startsWith('data:application/pdf') ? (
+                        setFile(uploadedFile),
+                        < embed
+                            src={uploadedFile}
+                            type="application/pdf"
+                            width="24.7%"
+                            height="194"
+                            className="rounded"
+                        />
+                    ) : (
+                        <div className="flex items-center justify-center h-full text-gray-500">
+                            Document Preview Available
                         </div>
+
+                    )
                     )}
+                    {uploadedFile ? (
+                        <div className='flex justify-center mt-6'>
+                            <button onClick={() => navigate(2)} className="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors">
+                                Reform
+                            </button>
+                        </div>
+                    ) : null}
                 </div>
             </div>
-        </div>
+        </div >
     );
 };
 
