@@ -1,4 +1,5 @@
 import { promises as fs } from 'fs';
+import next from 'next';
 // import pdf from 'pdf-parse/lib/pdf-parse';
 import * as pdfjsLib from "pdfjs-dist";
 // import "pdfjs-dist/build/pdf.worker.entry";
@@ -6,6 +7,42 @@ pdfjsLib.GlobalWorkerOptions.workerSrc = new URL(
     'pdfjs-dist/build/pdf.worker.min.mjs',
     import.meta.url,
 ).toString();
+
+const ProfileHeadings = ["profile"]
+const GoalsHeadings = ["goal", "focus", "objective", "summary"]
+const SkillsHeadings = ["skills", "qualifications"]
+const EducationHeadings = ["education", "academic"]
+const ExperienceHeadings = ["experience", "work", "professional", "employment"]
+const ProjectsHeadings = ["project", "projects", "portfolio"]
+const AwardsHeadings = ["awards", "recognition"]
+const PublicationsHeadings = ["publications", "articles"]
+const CertificationsHeadings = ["certifications", "training"]
+const LanguagesHeadings = ["languages", "communication"]
+const ReferencesHeadings = ["references", "recommendations"]
+const HobbiesHeadings = ["hobbies", "interests"]
+const VolunteerHeadings = ["volunteer", "community", "service"]
+
+interface Dictionary<T> {
+    [key: string]: T
+}
+
+function GetMostLikelyBin(heading: string): string {
+    console.log('Heading:', heading);
+    if (ProfileHeadings.includes(heading)) return "Profile";
+    if (GoalsHeadings.includes(heading)) return "Goals";
+    if (SkillsHeadings.includes(heading)) return "Skills";
+    if (EducationHeadings.includes(heading)) return "Education";
+    if (ExperienceHeadings.includes(heading)) return "Experience";
+    if (ProjectsHeadings.includes(heading)) return "Projects";
+    if (AwardsHeadings.includes(heading)) return "Awards";
+    if (PublicationsHeadings.includes(heading)) return "Publications";
+    if (CertificationsHeadings.includes(heading)) return "Certifications";
+    if (LanguagesHeadings.includes(heading)) return "Languages";
+    if (ReferencesHeadings.includes(heading)) return "References";
+    if (HobbiesHeadings.includes(heading)) return "Hobbies";
+    if (VolunteerHeadings.includes(heading)) return "Volunteer";
+    return "NA";
+}
 
 export async function extractPDFText(file: File): Promise<any> {
     const arrayBuffer = await file.arrayBuffer();
@@ -38,6 +75,9 @@ export async function extractPDFText(file: File): Promise<any> {
 
     const spaceBetweenWordsThreshold = 6;
 
+    let bins: Dictionary<string[]> = { "Profile": [], "Goals": [], "Skills": [], "Education": [], "Experience": [], "Projects": [], "Awards": [], "Publications": [], "Certifications": [], "Languages": [], "References": [], "Hobbies": [], "Volunteer": [], "NA": [] };
+    let currentBin = "Profile";
+
     for (let i = 1; i <= numPages; i++) {
         const page = await pdf.getPage(i);
         const textContent = await page.getTextContent();
@@ -58,28 +98,49 @@ export async function extractPDFText(file: File): Promise<any> {
 
                 avgCharWidth = item.width / item.str.length;
 
-                console.log('Distance:', (prevItem.transform[5]), item.transform[5]);
+                // console.log('Distance:', (prevItem.transform[5]), item.transform[5]);
             }
 
 
 
-            if ("str" in item && prevItem && nextItem && "str" in prevItem && "str" in nextItem) {
-                console.log(item.str, distanceX, distanceY, spaceBetweenWordsThreshold);
+            if ("str" in item) {
+                // console.log(item.str, distanceX, distanceY, spaceBetweenWordsThreshold);
                 // if (distance > spaceBetweenWordsThreshold) { str += "\n"; }
-                if (item.hasEOL || distanceX > 50 || distanceY > 10 || avgCharWidth > 10) { str += "\n"; }
-                if (prevItem.hasEOL && nextItem.hasEOL && item.fontName.endsWith("f2") && isUpperCase(item.str)) { str += "\n\n\n\n" + item.str + "\n----------------------------------------------------------------\n"; }
-                else if (prevItem.hasEOL && nextItem.hasEOL && (item.fontName.endsWith("f2") || isUpperCase(item.str))) { str += "\n\n\n\n" + item.str + "\n===========================================================\n"; }
+                // if (item.hasEOL || distanceX > 50 || distanceY > 10 || avgCharWidth > 10) { str += "\n"; }
+                // if (prevItem.hasEOL && nextItem.hasEOL && item.fontName.endsWith("f2") && isUpperCase(item.str)) { str += "\n\n\n\n" + item.str + "\n----------------------------------------------------------------\n"; }
+                // else if (prevItem.hasEOL && nextItem.hasEOL && (item.fontName.endsWith("f2") || isUpperCase(item.str))) { str += "\n\n\n\n" + item.str + "\n===========================================================\n"; }
                 // if (distanceX > 50) { str += "\n"; }
                 // if (distanceY > 10) { str += "\n"; }
-                else { str += item.str; }
+
+                let prevEOL = (prevItem && "hasEOL" in prevItem && prevItem.hasEOL) || !prevItem;
+                let nextEOL = (nextItem && "hasEOL" in nextItem && nextItem.hasEOL);
+
+                if (item.hasEOL) { str += "\n"; }
+
+                if (prevEOL && nextEOL && item.str.length > 2) {
+                    const words = item.str.split(" ");
+                    let tempBin = "NA";
+                    if (words.length <= 3) {
+                        tempBin = GetMostLikelyBin(words[0].toLowerCase());
+                        if (words.length > 1 && tempBin === "NA") tempBin = GetMostLikelyBin(words[1].toLowerCase());
+                        if (words.length > 2 && tempBin === "NA") tempBin = GetMostLikelyBin(words[2].toLowerCase());
+                        if (tempBin !== "NA") currentBin = tempBin;
+                    }
+                }
+
+                bins[currentBin].push(item.str);
+
+
+
+                // str += item.str;
 
             }
         }
     }
 
 
-
-    console.log('Text:', str);
+    console.log(bins);
+    // console.log('Text:', str);
     return jsonData;
     // return str;
     // return new ResumeParser().parse(str);

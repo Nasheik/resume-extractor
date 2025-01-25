@@ -11,20 +11,20 @@ export default function Home() {
   const handlePDFUpload = async (file: File) => {
     setIsLoading(true);
     try {
-      const pdfText = await extractPDFText(file);
-      console.log('PDF text:', pdfText);
+      const extractionResult = await extractPDFText(file);
+      console.log('Extraction Result:', extractionResult);
 
-      const response = await fetch('/api/analyze-pdf', {
-        method: 'POST',
-        body: JSON.stringify({ text: pdfText })
-      });
+      // const response = await fetch('/api/analyze-pdf', {
+      //   method: 'POST',
+      //   body: JSON.stringify({ text: pdfText })
+      // });
 
-      if (!response.ok) {
-        throw new Error('PDF analysis failed');
-      }
+      // if (!response.ok) {
+      //   throw new Error('PDF analysis failed');
+      // }
 
-      const result = await response.json();
-      setAnalysis(result.analysis);
+      // const result = await response.json();
+      // setAnalysis(result.analysis);
     } catch (error) {
       console.error('Error analyzing PDF:', error);
       setAnalysis('An error occurred during PDF analysis.');
