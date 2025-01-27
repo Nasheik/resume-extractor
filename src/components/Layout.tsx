@@ -15,11 +15,11 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       </div>
       
       {/* Content container */}
-      {/* <div className="relative z-10 max-w-4xl mx-auto p-6">
+      <div className="relative z-10 max-w-4xl mx-auto p-6">
         <div className="bg-white rounded-2xl shadow-xl p-8 min-h-[600px]">
           {children}
         </div>
-      </div> */}
+      </div>
     </div>
   );
 };
