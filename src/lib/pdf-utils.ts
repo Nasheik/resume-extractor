@@ -10,7 +10,7 @@ pdfjsLib.GlobalWorkerOptions.workerSrc = new URL(
 
 const ProfileHeadings = ["profile"]
 const GoalsHeadings = ["goal", "focus", "objective", "summary"]
-const SkillsHeadings = ["skills", "qualifications"]
+const SkillsHeadings = ["skills", "qualifications", "expertise"]
 const EducationHeadings = ["education", "academic"]
 const ExperienceHeadings = ["experience", "work", "professional", "employment"]
 const ProjectsHeadings = ["project", "projects", "portfolio"]

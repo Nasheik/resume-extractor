@@ -1,55 +1,58 @@
 'use client';
-
-import React, { useState } from 'react';
-import PDFUploader from '@/components/PDFUploader';
-import { extractPDFText } from '@/lib/pdf-utils';
+import { useState } from 'react';
+import Layout from '../components/Layout';
+import Link from 'next/link';
+import { Upload } from 'lucide-react';
 
 export default function Home() {
-  const [analysis, setAnalysis] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const [dragActive, setDragActive] = useState<boolean>(false);
 
-  const handlePDFUpload = async (file: File) => {
-    setIsLoading(true);
-    try {
-      const extractionResult = await extractPDFText(file);
-      console.log('Extraction Result:', extractionResult);
+  const handleDrag = (e: React.DragEvent): void => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (e.type === "dragenter" || e.type === "dragover") {
+      setDragActive(true);
+    } else if (e.type === "dragleave") {
+      setDragActive(false);
+    }
+  };
 
-      // const response = await fetch('/api/analyze-pdf', {
-      //   method: 'POST',
-      //   body: JSON.stringify({ text: pdfText })
-      // });
-
-      // if (!response.ok) {
-      //   throw new Error('PDF analysis failed');
-      // }
-
-      // const result = await response.json();
-      // setAnalysis(result.analysis);
-    } catch (error) {
-      console.error('Error analyzing PDF:', error);
-      setAnalysis('An error occurred during PDF analysis.');
-    } finally {
-      setIsLoading(false);
+  const handleDrop = (e: React.DragEvent): void => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragActive(false);
+    // Handle the files
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+      // Process files
     }
   };
 
   return (
-    <main className="container mx-auto p-6">
-      <h1 className="text-2xl font-bold mb-4">PDF Anthropic Analyzer</h1>
-      <PDFUploader onUpload={handlePDFUpload} />
-      
-      {isLoading && (
-        <div className="mt-4 text-center">
-          <p>Analyzing PDF...</p>
+    <Layout>
+      <div className="flex flex-col h-full gap-8">
+        <h1 className="text-4xl font-bold text-center">File Upload</h1>
+        
+        <div 
+          className={`flex-1 border-2 border-dashed rounded-lg flex items-center justify-center transition-colors
+            ${dragActive ? 'border-blue-500 bg-blue-50' : 'border-gray-300'}`}
+          onDragEnter={handleDrag}
+          onDragLeave={handleDrag}
+          onDragOver={handleDrag}
+          onDrop={handleDrop}
+        >
+          <div className="text-center">
+            <Upload className="mx-auto h-12 w-12 text-gray-400" />
+            <p className="mt-2">Drag and drop your files here, or click to select files</p>
+          </div>
         </div>
-      )}
-      
-      {analysis && (
-        <div className="mt-4 p-4 bg-gray-100 rounded text-black">
-          <h2 className="text-xl font-semibold mb-2">Analysis Result:</h2>
-          <p>{analysis}</p>
-        </div>
-      )}
-    </main>
+
+        <Link 
+          href="/carousel" 
+          className="block w-full bg-blue-500 text-white text-center py-3 rounded-lg hover:bg-blue-600 transition-colors"
+        >
+          Next Page
+        </Link>
+      </div>
+    </Layout>
   );
 }
