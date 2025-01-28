@@ -19,6 +19,28 @@ body {
   background: var(--background);
   font-family: Arial, Helvetica, sans-serif;
 }
+/* Container styles */
+/* WebKit (Chrome, Safari, Edge) scrollbar styles */
+div::-webkit-scrollbar {
+  width: 8px;
+}
+
+div::-webkit-scrollbar-track {
+  background: rgba(155, 155, 155, 0.1);
+  border-radius: 4px;
+}
+
+div::-webkit-scrollbar-thumb {
+  background-color: rgba(155, 155, 155, 0.5);
+  border-radius: 4px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+/* Hover state */
+div::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(155, 155, 155, 0.7);
+}
 
 
 .hide-scrollbar::-webkit-scrollbar {

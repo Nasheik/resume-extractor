@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import React, { useState } from 'react';
-import { useDropzone } from 'react-dropzone';
+import React, { useState } from "react";
+import { useDropzone } from "react-dropzone";
 
 interface PDFUploaderProps {
   onUpload: (file: File) => void;
@@ -12,7 +12,7 @@ export default function PDFUploader({ onUpload }: PDFUploaderProps) {
 
   const { getRootProps, getInputProps } = useDropzone({
     accept: {
-      'application/pdf': ['.pdf']
+      "application/pdf": [".pdf"],
     },
     onDrop: (acceptedFiles) => {
       const pdfFile = acceptedFiles[0];
@@ -22,18 +22,18 @@ export default function PDFUploader({ onUpload }: PDFUploaderProps) {
       }
     },
     onDropRejected: () => {
-      setError('Please upload a valid PDF file.');
+      setError("Please upload a valid PDF file.");
     },
-    multiple: false
+    multiple: false,
   });
 
   return (
-    <div 
-      {...getRootProps()} 
+    <div
+      {...getRootProps()}
       className="border-2 border-dashed p-6 text-center cursor-pointer hover:bg-gray-100"
     >
       <input {...getInputProps()} />
-      <p>Drag and drop a PDF file, or click to select</p>
+      <p>Drag and drop your resume PDF file, or click to select</p>
       {error && <p className="text-red-500 mt-2">{error}</p>}
     </div>
   );
