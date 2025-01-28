@@ -76,7 +76,7 @@ const SelectionPage = () => {
             </div>
           </div>
           <Link
-            href="/selection"
+            href="/preview"
             className="block w-full py-4 pt-5 bg-blue-500 text-white text-center rounded-lg hover:bg-blue-600 transition-colors"
           >
             Reform
