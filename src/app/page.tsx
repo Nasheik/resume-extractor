@@ -29,8 +29,12 @@ export default function Home() {
 
   return (
     <Layout>
+      <div className="relative z-10 max-w-4xl mx-auto p-6">
+        <div className="bg-white rounded-2xl shadow-xl p-8 text-gray-800">
+          <h1 className="text-4xl font-bold text-center">Reform My Resume</h1>
+        </div>
+      </div>
       <div className="flex flex-col h-full gap-8">
-        <h1 className="text-4xl font-bold text-center">File Upload</h1>
         
         <div 
           className={`flex-1 border-2 border-dashed rounded-lg flex items-center justify-center transition-colors
