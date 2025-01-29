@@ -2,6 +2,7 @@ import { promises as fs } from 'fs';
 import next from 'next';
 // import pdf from 'pdf-parse/lib/pdf-parse';
 import * as pdfjsLib from "pdfjs-dist";
+import { TextItem, TextMarkedContent } from 'pdfjs-dist/types/src/display/api';
 // import "pdfjs-dist/build/pdf.worker.entry";
 pdfjsLib.GlobalWorkerOptions.workerSrc = new URL(
     'pdfjs-dist/build/pdf.worker.min.mjs',
@@ -47,36 +48,17 @@ function GetMostLikelyBin(heading: string): string {
 export async function extractPDFText(file: File): Promise<any> {
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
-
-    console.log('Buffer:', buffer);
-
     const pdf = await pdfjsLib.getDocument({ data: buffer }).promise;
-
-    console.log('PDF:', pdf);
-
     const numPages = pdf.numPages;
     const jsonData = [];
     let str = "";
 
-
-    // for (let i = 1; i <= numPages; i++) {
-    //     const page = await pdf.getPage(i);
-    //     const textContent = await page.getTextContent();
-    //     jsonData.push(textContent);
-    //     for (const item of textContent.items) {
-    //         if ("str" in item) {
-    //             console.log(item.str);
-    //             if (item.transform[5] > 500) {
-    //                 str += item.str;
-    //             }
-    //         }
-    //     }
-    // }
-
     const spaceBetweenWordsThreshold = 6;
 
-    let bins: Dictionary<string[]> = { "Profile": [], "Goals": [], "Skills": [], "Education": [], "Experience": [], "Projects": [], "Awards": [], "Publications": [], "Certifications": [], "Languages": [], "References": [], "Hobbies": [], "Volunteer": [], "NA": [] };
+    let bins: Dictionary<TextItem[]> = { "Profile": [], "Goals": [], "Skills": [], "Education": [], "Experience": [], "Projects": [], "Awards": [], "Publications": [], "Certifications": [], "Languages": [], "References": [], "Hobbies": [], "Volunteer": [], "NA": [] };
     let currentBin = "Profile";
+    let usedBins = ["Profile"];
+
 
     for (let i = 1; i <= numPages; i++) {
         const page = await pdf.getPage(i);
@@ -91,31 +73,17 @@ export async function extractPDFText(file: File): Promise<any> {
 
             let distanceX = 0; let distanceY = 0; let avgCharWidth = 0;
             if (j > 0 && "hasEOL" in item && "transform" in prevItem && "transform" in item) {
-
                 distanceX = Math.abs((prevItem.transform[4] + prevItem.width) - item.transform[4]);
-
                 distanceY = Math.abs((prevItem.transform[5]) - item.transform[5]);
-
                 avgCharWidth = item.width / item.str.length;
-
-                // console.log('Distance:', (prevItem.transform[5]), item.transform[5]);
             }
 
-
-
             if ("str" in item) {
-                // console.log(item.str, distanceX, distanceY, spaceBetweenWordsThreshold);
-                // if (distance > spaceBetweenWordsThreshold) { str += "\n"; }
-                // if (item.hasEOL || distanceX > 50 || distanceY > 10 || avgCharWidth > 10) { str += "\n"; }
-                // if (prevItem.hasEOL && nextItem.hasEOL && item.fontName.endsWith("f2") && isUpperCase(item.str)) { str += "\n\n\n\n" + item.str + "\n----------------------------------------------------------------\n"; }
-                // else if (prevItem.hasEOL && nextItem.hasEOL && (item.fontName.endsWith("f2") || isUpperCase(item.str))) { str += "\n\n\n\n" + item.str + "\n===========================================================\n"; }
-                // if (distanceX > 50) { str += "\n"; }
-                // if (distanceY > 10) { str += "\n"; }
-
-                let prevEOL = (prevItem && "hasEOL" in prevItem && prevItem.hasEOL) || !prevItem;
+                let prevEOL = !prevItem || (prevItem && "hasEOL" in prevItem && prevItem.hasEOL);
                 let nextEOL = (nextItem && "hasEOL" in nextItem && nextItem.hasEOL);
 
                 if (item.hasEOL) { str += "\n"; }
+                let hasBinChanged = false;
 
                 if (prevEOL && nextEOL && item.str.length > 2) {
                     const words = item.str.split(" ");
@@ -124,34 +92,54 @@ export async function extractPDFText(file: File): Promise<any> {
                         tempBin = GetMostLikelyBin(words[0].toLowerCase());
                         if (words.length > 1 && tempBin === "NA") tempBin = GetMostLikelyBin(words[1].toLowerCase());
                         if (words.length > 2 && tempBin === "NA") tempBin = GetMostLikelyBin(words[2].toLowerCase());
-                        if (tempBin !== "NA") currentBin = tempBin;
+                        if (tempBin !== "NA" && tempBin !== currentBin) { hasBinChanged = true; if(usedBins.indexOf(currentBin)===-1) usedBins.push(currentBin); currentBin = tempBin;}
                     }
                 }
 
-                bins[currentBin].push(item.str);
+                // console.log(item.str, distanceX, distanceY, spaceBetweenWordsThreshold);
+                // if (distance > spaceBetweenWordsThreshold) { str += "\n"; }
+                // if (item.hasEOL || distanceX > 50 || distanceY > 10 || avgCharWidth > 10) { str += "\n"; }
+                // if (prevItem.hasEOL && nextItem.hasEOL && item.fontName.endsWith("f2") && isUpperCase(item.str)) { str += "\n\n\n\n" + item.str + "\n----------------------------------------------------------------\n"; }
+                // else if (prevItem.hasEOL && nextItem.hasEOL && (item.fontName.endsWith("f2") || isUpperCase(item.str))) { str += "\n\n\n\n" + item.str + "\n===========================================================\n"; }
+                // if (distanceX > 50) { str += "\n"; }
+                // if (distanceY > 10) { str += "\n"; }
 
-
-
-                // str += item.str;
-
+               if(!hasBinChanged) bins[currentBin].push(item);
             }
         }
     }
 
+    // console.log(bins);
+    return CondenseBins(bins, usedBins);
+}
 
-    console.log(bins);
-    // console.log('Text:', str);
-    return jsonData;
-    // return str;
-    // return new ResumeParser().parse(str);
+function CondenseBins(bins: Dictionary<TextItem[]>, usedBins: string[]): Dictionary<string> {
+    let condensedBins: Dictionary<string> = {};
+    
+    for (let i = 0; i < usedBins.length; i++) {
+        const key = usedBins[i];
+        const items = bins[key];
+        let str = "";
+        for (let j = 0; j < items.length; j++) {
+            const item = items[j];
+            const prevItem = items[j - 1];
+            const nextItem = items[j + 1];
+            let distanceX = 0; let distanceY = 0; let avgCharWidth = 0;
+            if (j > 0 && "hasEOL" in item && "transform" in prevItem && "transform" in item) {
+                distanceX = Math.abs((prevItem.transform[4] + prevItem.width) - item.transform[4]);
+                distanceY = Math.abs((prevItem.transform[5]) - item.transform[5]);
+                avgCharWidth = item.width / item.str.length;
+            }
+            str += items[j].str + " ";
+            if (item.hasEOL || distanceX > 50 || distanceY > 10 || avgCharWidth > 10) { str += "\n"; }
+        }
+
+        condensedBins[key] = str.trim();
+    }
+    return condensedBins;
 }
 
 const isUpperCase = (str: String) => str === str.toUpperCase();
-
-function SortResumeInformation(str: String): string[] {
-    return [];
-}
-
 
 interface ResumeExtractionResult {
     emails: string[];
