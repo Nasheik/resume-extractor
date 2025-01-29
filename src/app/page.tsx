@@ -4,9 +4,16 @@ import Layout from "../components/Layout";
 import Link from "next/link";
 import PDFUploader from "@/components/PDFUploader";
 import EmbedPDF from "@/components/EmbedPDF";
+import { extractPDFText } from "@/lib/pdf-utils";
 
 export default function Home() {
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
+
+  const handleUpload = async (file: File) => {
+    setUploadedFile(file);
+    const text = await extractPDFText(file);
+    console.log(text);
+  };
 
   return (
     <Layout>
@@ -19,7 +26,10 @@ export default function Home() {
       <div className="relative z-10 max-w-4xl mx-auto p-6">
         <div className="bg-white rounded-2xl shadow-xl p-8 text-gray-800">
           <div className="flex flex-col h-full gap-8">
-            <PDFUploader onUpload={(file) => setUploadedFile(file)} />
+            <PDFUploader
+              onUpload={handleUpload}
+              hasUploadedFile={uploadedFile !== null}
+            />
 
             {uploadedFile && (
               <EmbedPDF file={URL.createObjectURL(uploadedFile)} />

@@ -56,7 +56,20 @@ div::-webkit-scrollbar-thumb:hover {
   background: radial-gradient(circle, #767676 25%, transparent 26%), radial-gradient(circle at bottom left, #767676 12%, transparent 13%), radial-gradient(circle at bottom right, #767676 12%, transparent 13%), radial-gradient(circle at top left, #767676 12%, transparent 13%), radial-gradient(circle at top right, #767676 12%, transparent 13%);
   background-size: 6em 6em;
   background-color: #383838;
-  opacity: 1
+  opacity: 1;
+  /* animation: colorChange 5s infinite alternate linear; */
+}
+
+@keyframes colorChange {
+0% {
+  background: radial-gradient(circle, #767676 25%, transparent 26%), radial-gradient(circle at bottom left, #767676 12%, transparent 13%), radial-gradient(circle at bottom right, #767676 12%, transparent 13%), radial-gradient(circle at top left, #767676 12%, transparent 13%), radial-gradient(circle at top right, #767676 12%, transparent 13%);
+  background-size: 6em 6em;
+  background-color: #383838;
+}
+100% {
+  background: radial-gradient(circle, #767676 25%, transparent 26%), radial-gradient(circle at bottom left, #767676 12%, transparent 13%), radial-gradient(circle at bottom right, #767676 12%, transparent 13%), radial-gradient(circle at top left, #767676 12%, transparent 13%), radial-gradient(circle at top right, #767676 12%, transparent 13%);
+  background-size: 6em 6em;
+}
 }
 
 /*
